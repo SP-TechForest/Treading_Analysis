@@ -17,7 +17,7 @@ st.write(
     """
 )
 st.sidebar.header("User Preferences") # Sidebar header
-Ticker_Symbol = pd.read_csv(All_tickers.csv) # read data from csv file
+Ticker_Symbol = pd.read_csv("All_tickers.csv") # read data from csv file
 Ticker_Symbol_List = list(Ticker_Symbol["Ticker"])  # List of all the ticker Symbols
 
 # here we are using datetime library to get current time
