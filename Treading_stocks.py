@@ -24,7 +24,7 @@ Ticker_Symbol_List = list(Ticker_Symbol["Ticker"])  # List of all the ticker Sym
 Today_date = date.today()
 Current_time = Today_date.strftime("%Y-%m-%d")
 
-# FUNCTIONS
+# FUNCTIONSs
 
 def get_timelines(): # this function returns the selected timelines
     button2 = st.sidebar.radio("", ("Fixed Timeline", "Manual Timeline"))
