@@ -140,31 +140,57 @@ def Two_MA_data(m1, m2, data): # this function returns the double moving average
     MA1_data["Moving_Avg2"]= data["Adj Close"].rolling(window=m2).mean()
     return  MA1_data
 
-def Buy_Sell_indicator(data): # this function compare the data and give the sell and buy indicators.
-    sigPriceBuy = [] # list to add buy indicators
-    sigPriceSell = [] # list to add sell indicators
-    flag = -1
+def buy_sell(data):
+    sigPriceBuy = []
+    sigPriceSell = []
+    diff = []
+    skip = 0
+    buy_price = 0
+    support = 0
+    flag = 0
     for i in range(len(data)):
-        if data["Moving_Avg"][i] > data["Moving_Avg2"][i]:
-            if flag != 1:
+        if data["Moving_Avg"][i] > data["Moving_Avg2"][i] and skip == 0:
+            if flag != 1 and skip == 0:
                 sigPriceBuy.append(data["Adj Close"][i])
+                buy_price = data["Adj Close"][i]
+                support = buy_price - (buy_price * 0.30)
+                print(f"buying price{buy_price}")
+                print(f"buysupport{support}")
+                resistance = buy_price + (buy_price * 0.7)
                 sigPriceSell.append(np.nan)
                 flag = 1
+                skip = 1
             else:
                 sigPriceBuy.append(np.nan)
                 sigPriceSell.append(np.nan)
+        elif data["Adj Close"][i] < support:
+            pp = data["Adj Close"][i]
+            print(f"closing_price{pp}")
+            diff.append(data["Adj Close"][i] - buy_price)
+            sigPriceBuy.append(np.nan)
+            sigPriceSell.append(data["Adj Close"][i])
+            skip = 1
+            flag = 0
+            support = 0
+
         elif data["Moving_Avg"][i] < data["Moving_Avg2"][i]:
+            skip = 0
             if flag != 0:
+                print(f"sell{support}")
+                if buy_price != 0:
+                    diff.append(data["Adj Close"][i] - buy_price)
                 sigPriceBuy.append(np.nan)
                 sigPriceSell.append(data["Adj Close"][i])
+                skip = 0
                 flag = 0
+                support = 0
             else:
                 sigPriceBuy.append(np.nan)
                 sigPriceSell.append(np.nan)
         else:
             sigPriceBuy.append(np.nan)
             sigPriceSell.append(np.nan)
-    return(sigPriceBuy, sigPriceSell)
+    return (sigPriceBuy, sigPriceSell)
 
 def Double_MA_visualization(data, m1_data): # this function visualize the single moving avg.
     fig = px.line(data,
@@ -281,7 +307,7 @@ elif button == 2:
     Double_MA_Data= Two_MA_data(ma1, ma2, company_data)
     Double_MA_Data["Adj Close"] = company_data["Adj Close"]
     Double_MA_Data = Double_MA_Data.reset_index()
-    buy_sell = Buy_Sell_indicator(Double_MA_Data)
+    buy_sell = buy_sell(Double_MA_Data)
     Double_MA_Data["Buy_Signal_Price"] = buy_sell[0]
     Double_MA_Data["Sell_Signal_Price"] = buy_sell[1]
     Double_MA_visualization(company_data, Double_MA_Data)
